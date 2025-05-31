@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
 
+// Updated for Vercel deployment with environment variables
 interface AuthFormProps {
   mode: 'login' | 'register'
   onToggleMode: () => void
