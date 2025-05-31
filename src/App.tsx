@@ -5,6 +5,13 @@ import { Dashboard } from './components/Dashboard/Dashboard'
 import { EnvCheck } from './components/Debug/EnvCheck'
 import './App.css'
 
+// Force deployment timestamp: 2025-01-31 20:05
+console.log('🚀 Task Tracker App Loading - Auth Version v2.0')
+console.log('Environment variables:', {
+  hasSupabaseUrl: !!process.env.REACT_APP_SUPABASE_URL,
+  hasSupabaseKey: !!process.env.REACT_APP_SUPABASE_ANON_KEY
+})
+
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth()
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
