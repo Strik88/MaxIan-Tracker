@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { AuthForm } from './components/Auth/AuthForm'
 import { Dashboard } from './components/Dashboard/Dashboard'
+import { EnvCheck } from './components/Debug/EnvCheck'
 import './App.css'
 
 const AppContent: React.FC = () => {
@@ -22,15 +23,26 @@ const AppContent: React.FC = () => {
           </svg>
           <p className="mt-4 text-gray-600">Loading...</p>
         </div>
+        <EnvCheck />
       </div>
     )
   }
 
   if (user) {
-    return <Dashboard />
+    return (
+      <>
+        <Dashboard />
+        <EnvCheck />
+      </>
+    )
   }
 
-  return <AuthForm mode={authMode} onToggleMode={toggleAuthMode} />
+  return (
+    <>
+      <AuthForm mode={authMode} onToggleMode={toggleAuthMode} />
+      <EnvCheck />
+    </>
+  )
 }
 
 const App: React.FC = () => {
