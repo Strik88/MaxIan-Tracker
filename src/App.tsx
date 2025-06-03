@@ -1,4 +1,4 @@
-// DEPLOYMENT TRIGGER: 2025-06-02-15:05:30 - FORCE CACHE BUST
+// DEPLOYMENT TRIGGER: 2025-06-02-15:15:00 - FORCE TEST CREDENTIALS UPDATE
 import React, { useState } from 'react'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { AuthForm } from './components/Auth/AuthForm'
@@ -6,8 +6,8 @@ import { Dashboard } from './components/Dashboard/Dashboard'
 import { EnvCheck } from './components/Debug/EnvCheck'
 import './App.css'
 
-// Force deployment timestamp: 2025-01-31 20:05
-console.log('🚀 Task Tracker App Loading - Auth Version v2.1')
+// Force deployment timestamp: 2025-01-31 20:15 - TEST CREDENTIALS VISIBLE
+console.log('🚀 Task Tracker App Loading - Auth Version v2.2 - Test Credentials Integrated')
 console.log('Environment variables:', {
   hasSupabaseUrl: !!process.env.REACT_APP_SUPABASE_URL,
   hasSupabaseKey: !!process.env.REACT_APP_SUPABASE_ANON_KEY,
