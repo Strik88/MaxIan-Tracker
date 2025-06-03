@@ -17,12 +17,18 @@ console.log('Environment variables:', {
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth()
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
+  const [devBypass, setDevBypass] = useState(false)
 
-  console.log('🎯 AppContent render:', { hasUser: !!user, userEmail: user?.email, loading })
+  console.log('🎯 AppContent render:', { hasUser: !!user, userEmail: user?.email, loading, devBypass })
 
   const toggleAuthMode = () => {
     console.log('🔄 Toggling auth mode from', authMode, 'to', authMode === 'login' ? 'register' : 'login')
     setAuthMode(prev => prev === 'login' ? 'register' : 'login')
+  }
+
+  const enableDevBypass = () => {
+    console.log('🔧 Development bypass enabled!')
+    setDevBypass(true)
   }
 
   if (loading) {
@@ -42,8 +48,8 @@ const AppContent: React.FC = () => {
     )
   }
 
-  if (user) {
-    console.log('✅ User authenticated, showing Dashboard')
+  if (user || devBypass) {
+    console.log('✅ User authenticated or dev bypass, showing Dashboard')
     return (
       <>
         <Dashboard />
@@ -56,6 +62,23 @@ const AppContent: React.FC = () => {
   return (
     <>
       <AuthForm mode={authMode} onToggleMode={toggleAuthMode} />
+      
+      {/* Development Bypass Button */}
+      <div className="fixed bottom-4 right-4 bg-red-50 border border-red-200 rounded-lg p-4 shadow-lg max-w-sm z-50">
+        <div className="text-sm">
+          <h3 className="font-semibold text-red-900 mb-2">🔧 Dev Bypass</h3>
+          <p className="text-xs text-red-700 mb-2">
+            Rate limited by Supabase? Skip auth temporarily to test the app:
+          </p>
+          <button
+            onClick={enableDevBypass}
+            className="w-full bg-red-600 text-white px-3 py-2 rounded text-xs hover:bg-red-700"
+          >
+            🚀 Skip Auth & Test Dashboard
+          </button>
+        </div>
+      </div>
+      
       <EnvCheck />
     </>
   )

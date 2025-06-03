@@ -34,6 +34,10 @@ export const Dashboard: React.FC = () => {
     await signOut()
   }
 
+  // Dev bypass mode check
+  const isDevBypass = !user
+  const displayEmail = user?.user_metadata?.username || user?.email || 'Dev User (No Auth)'
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -43,14 +47,18 @@ export const Dashboard: React.FC = () => {
             <div>
               <h1 className="text-3xl font-bold text-gray-900">MaxIan Task Tracker</h1>
               <p className="text-sm text-gray-600">
-                Welcome back, {user?.user_metadata?.username || user?.email}
+                {isDevBypass ? (
+                  <span className="text-red-600">🔧 Development Mode (No Authentication)</span>
+                ) : (
+                  `Welcome back, ${displayEmail}`
+                )}
               </p>
             </div>
             <button
               onClick={handleSignOut}
               className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
             >
-              Sign Out
+              {isDevBypass ? 'Exit Dev Mode' : 'Sign Out'}
             </button>
           </div>
         </div>
@@ -58,6 +66,15 @@ export const Dashboard: React.FC = () => {
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {isDevBypass && (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <h3 className="text-red-900 font-semibold">⚠️ Development Bypass Mode</h3>
+            <p className="text-red-700 text-sm mt-1">
+              You're testing without authentication. Task management may have limited functionality.
+            </p>
+          </div>
+        )}
+        
         <div className="space-y-6">
           {/* Week Navigation */}
           <WeekSelector 

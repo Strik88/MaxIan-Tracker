@@ -56,6 +56,34 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
         const { error } = await signIn(formData.email, formData.password)
         if (error) {
           console.error('🔐 AuthForm: Login failed:', error.message)
+          
+          // Special handling for test account
+          if (formData.email === 'test@maxian.dev' && error.message === 'Invalid login credentials') {
+            console.log('🧪 Test account not found, creating it first...')
+            setError('Test account not found, creating it now...')
+            
+            // Try to create test account first
+            const { error: signUpError } = await signUp(formData.email, formData.password, formData.username || 'MaxIanTest')
+            
+            if (signUpError && !signUpError.message.includes('already been registered')) {
+              setError(`Failed to create test account: ${signUpError.message}`)
+              return
+            }
+            
+            // Wait a moment then try login again
+            setTimeout(async () => {
+              console.log('🧪 Retrying login after account creation...')
+              const { error: retryError } = await signIn(formData.email, formData.password)
+              if (retryError) {
+                setError(`Still unable to login: ${retryError.message}`)
+              } else {
+                console.log('🧪 Test account login successful!')
+              }
+            }, 2000)
+            
+            return
+          }
+          
           setError(error.message || 'Login failed')
         } else {
           console.log('🔐 AuthForm: Login successful!')
@@ -68,7 +96,7 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
           setError(error.message || 'Registration failed')
         } else {
           console.log('🔐 AuthForm: Registration successful!')
-          setSuccessMessage('Registration successful! Check your email for verification.')
+          setSuccessMessage('Registration successful! You can now login.')
         }
       }
     } catch (err: any) {
@@ -151,8 +179,11 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
                 {loading ? '⏳ Working...' : '🚀 Create & Login'}
               </button>
             </div>
-            <div className="mt-2 text-xs text-gray-600">
-              💡 Use "Create & Login" for instant access, or "Auto-fill" then manual login
+            <div className="mt-3 p-2 bg-yellow-50 border border-yellow-200 rounded text-xs">
+              <strong>📋 Instructions:</strong><br/>
+              1. Click "📝 Auto-fill Form" to fill the fields<br/>
+              2. Click "Sign in" (account will be auto-created if needed)<br/>
+              3. Or click "🚀 Create & Login" for instant access
             </div>
           </div>
         </div>
