@@ -79,9 +79,42 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
 
   const isLogin = mode === 'login'
 
+  const fillTestCredentials = () => {
+    setFormData({
+      email: 'test@maxian.dev',
+      password: 'testpass123',
+      username: 'MaxIanTest'
+    })
+    setError('')
+    setSuccessMessage('')
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
+        {/* Test Credentials Box */}
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+          <h3 className="text-sm font-semibold text-blue-900 mb-2">🧪 Test Account (No Email Verification)</h3>
+          <div className="bg-white rounded p-3 text-sm">
+            <div className="grid grid-cols-2 gap-2">
+              <div><strong>Email:</strong></div>
+              <div className="font-mono text-xs">test@maxian.dev</div>
+              <div><strong>Password:</strong></div>
+              <div className="font-mono text-xs">testpass123</div>
+            </div>
+            <button
+              type="button"
+              onClick={fillTestCredentials}
+              className="mt-3 w-full bg-blue-600 text-white py-2 px-3 rounded text-xs hover:bg-blue-700 transition-colors"
+            >
+              🚀 Auto-fill Test Credentials
+            </button>
+            <div className="mt-2 text-xs text-gray-600">
+              💡 Click above to auto-fill the form, then click Sign In
+            </div>
+          </div>
+        </div>
+
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             {isLogin ? 'Sign in to your account' : 'Create your account'}
