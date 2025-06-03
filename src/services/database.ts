@@ -224,6 +224,7 @@ export const dbUtils = {
   // Test database connection
   async testConnection() {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { data, error } = await supabase
         .from('users')
         .select('count')
@@ -244,6 +245,7 @@ export const dbUtils = {
 
   // Get database health status
   async getHealthStatus() {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const { data, error } = await supabase
       .from('users')
       .select('count')
