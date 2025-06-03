@@ -20,12 +20,21 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    console.log('🔐 AuthProvider: Initializing authentication...')
+    
     // Get initial session
     const getInitialSession = async () => {
-      const { session } = await authService.getCurrentSession()
-      setSession(session)
-      setUser(session?.user ?? null)
-      setLoading(false)
+      try {
+        const { session } = await authService.getCurrentSession()
+        console.log('🔐 Initial session:', session?.user?.email || 'No session')
+        
+        setSession(session)
+        setUser(session?.user ?? null)
+        setLoading(false)
+      } catch (error) {
+        console.error('🔐 Error getting initial session:', error)
+        setLoading(false)
+      }
     }
 
     getInitialSession()
@@ -33,56 +42,91 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     // Listen for auth changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email)
+        console.log('🔐 Auth state changed:', event, session?.user?.email || 'No user')
+        
         setSession(session)
         setUser(session?.user ?? null)
-        setLoading(false)
+        
+        // Don't set loading to false here if we're still in the initial load
+        if (event !== 'INITIAL_SESSION') {
+          setLoading(false)
+        }
       }
     )
 
-    return () => subscription.unsubscribe()
+    return () => {
+      console.log('🔐 Cleaning up auth subscription')
+      subscription.unsubscribe()
+    }
   }, [])
 
   const signUp = async (email: string, password: string, username: string) => {
+    console.log('🔐 SignUp attempt for:', email)
     setLoading(true)
+    
     try {
       const { error } = await authService.signUp(email, password, username)
       if (error) {
-        console.error('Sign up error:', error)
+        console.error('🔐 Sign up error:', error.message)
       } else {
-        console.log('Sign up successful! Check your email for verification.')
+        console.log('🔐 Sign up successful! Check your email for verification.')
       }
       return { error }
+    } catch (err) {
+      console.error('🔐 Sign up exception:', err)
+      return { error: err }
     } finally {
       setLoading(false)
     }
   }
 
   const signIn = async (email: string, password: string) => {
+    console.log('🔐 SignIn attempt for:', email)
     setLoading(true)
+    
     try {
-      const { error } = await authService.signIn(email, password)
+      const { data, error } = await authService.signIn(email, password)
+      
       if (error) {
-        console.error('Sign in error:', error)
-      } else {
-        console.log('Sign in successful!')
+        console.error('🔐 Sign in error:', error.message)
+        setLoading(false)
+        return { error }
       }
-      return { error }
-    } finally {
+
+      if (data?.user) {
+        console.log('🔐 Sign in successful for:', data.user.email)
+        // Force update the session and user state
+        setSession(data.session)
+        setUser(data.user)
+      }
+      
       setLoading(false)
+      return { error }
+    } catch (err) {
+      console.error('🔐 Sign in exception:', err)
+      setLoading(false)
+      return { error: err }
     }
   }
 
   const signOut = async () => {
+    console.log('🔐 SignOut attempt')
     setLoading(true)
+    
     try {
       const { error } = await authService.signOut()
       if (error) {
-        console.error('Sign out error:', error)
+        console.error('🔐 Sign out error:', error.message)
       } else {
-        console.log('Sign out successful!')
+        console.log('🔐 Sign out successful!')
+        // Clear state immediately
+        setSession(null)
+        setUser(null)
       }
       return { error }
+    } catch (err) {
+      console.error('🔐 Sign out exception:', err)
+      return { error: err }
     } finally {
       setLoading(false)
     }
@@ -96,6 +140,14 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     signIn,
     signOut,
   }
+
+  // Debug logging
+  console.log('🔐 AuthProvider state:', {
+    hasUser: !!user,
+    userEmail: user?.email,
+    loading,
+    hasSession: !!session
+  })
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }

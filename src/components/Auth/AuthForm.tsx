@@ -32,6 +32,8 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
     setError('')
     setSuccessMessage('')
 
+    console.log('🔐 AuthForm: Starting', mode, 'for', formData.email)
+
     // Validation
     if (!formData.email || !formData.password) {
       setError('Email and password are required')
@@ -50,19 +52,27 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
 
     try {
       if (mode === 'login') {
+        console.log('🔐 AuthForm: Attempting login...')
         const { error } = await signIn(formData.email, formData.password)
         if (error) {
+          console.error('🔐 AuthForm: Login failed:', error.message)
           setError(error.message || 'Login failed')
+        } else {
+          console.log('🔐 AuthForm: Login successful!')
         }
       } else {
+        console.log('🔐 AuthForm: Attempting registration...')
         const { error } = await signUp(formData.email, formData.password, formData.username)
         if (error) {
+          console.error('🔐 AuthForm: Registration failed:', error.message)
           setError(error.message || 'Registration failed')
         } else {
+          console.log('🔐 AuthForm: Registration successful!')
           setSuccessMessage('Registration successful! Check your email for verification.')
         }
       }
-    } catch (err) {
+    } catch (err: any) {
+      console.error('🔐 AuthForm: Unexpected error:', err)
       setError('An unexpected error occurred')
     }
   }

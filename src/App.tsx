@@ -7,21 +7,26 @@ import { EnvCheck } from './components/Debug/EnvCheck'
 import './App.css'
 
 // Force deployment timestamp: 2025-01-31 20:05
-console.log('🚀 Task Tracker App Loading - Auth Version v2.0')
+console.log('🚀 Task Tracker App Loading - Auth Version v2.1')
 console.log('Environment variables:', {
   hasSupabaseUrl: !!process.env.REACT_APP_SUPABASE_URL,
-  hasSupabaseKey: !!process.env.REACT_APP_SUPABASE_ANON_KEY
+  hasSupabaseKey: !!process.env.REACT_APP_SUPABASE_ANON_KEY,
+  supabaseUrl: process.env.REACT_APP_SUPABASE_URL?.substring(0, 20) + '...',
 })
 
 const AppContent: React.FC = () => {
   const { user, loading } = useAuth()
   const [authMode, setAuthMode] = useState<'login' | 'register'>('login')
 
+  console.log('🎯 AppContent render:', { hasUser: !!user, userEmail: user?.email, loading })
+
   const toggleAuthMode = () => {
+    console.log('🔄 Toggling auth mode from', authMode, 'to', authMode === 'login' ? 'register' : 'login')
     setAuthMode(prev => prev === 'login' ? 'register' : 'login')
   }
 
   if (loading) {
+    console.log('⏳ App is loading...')
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
         <div className="text-center">
@@ -29,7 +34,8 @@ const AppContent: React.FC = () => {
             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
             <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <p className="mt-4 text-gray-600">Loading...</p>
+          <p className="mt-4 text-gray-600">Loading authentication...</p>
+          <p className="mt-2 text-sm text-gray-500">Please wait while we check your session</p>
         </div>
         <EnvCheck />
       </div>
@@ -37,6 +43,7 @@ const AppContent: React.FC = () => {
   }
 
   if (user) {
+    console.log('✅ User authenticated, showing Dashboard')
     return (
       <>
         <Dashboard />
@@ -45,6 +52,7 @@ const AppContent: React.FC = () => {
     )
   }
 
+  console.log('🔐 No user found, showing AuthForm')
   return (
     <>
       <AuthForm mode={authMode} onToggleMode={toggleAuthMode} />
@@ -54,6 +62,7 @@ const AppContent: React.FC = () => {
 }
 
 const App: React.FC = () => {
+  console.log('🏁 App component mounting')
   return (
     <AuthProvider>
       <AppContent />
