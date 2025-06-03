@@ -20,14 +20,20 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onTaskCreated, weekStartDate
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!user) return
+    if (!user) {
+      // Dev bypass mode - use mock user ID
+      console.log('🔧 Dev bypass mode: Using mock user ID for task creation')
+    }
 
     setIsLoading(true)
     setError(null)
 
     try {
+      // Use mock user ID in dev bypass mode
+      const userId = user?.id || 'dev-user-12345'
+      
       const { error: createError } = await taskService.createTask({
-        user_id: user.id,
+        user_id: userId,
         title: formData.title,
         description: formData.description,
         type: formData.type,
@@ -63,7 +69,10 @@ export const TaskForm: React.FC<TaskFormProps> = ({ onTaskCreated, weekStartDate
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
       <div className="flex justify-between items-center mb-4">
-        <h3 className="text-lg font-semibold text-gray-900">Add New Task</h3>
+        <h3 className="text-lg font-semibold text-gray-900">
+          Add New Task
+          {!user && <span className="text-xs text-red-600 ml-2">(Dev Mode)</span>}
+        </h3>
         <button
           onClick={() => setIsOpen(false)}
           className="text-gray-400 hover:text-gray-600"

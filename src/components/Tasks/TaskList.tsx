@@ -15,13 +15,22 @@ export const TaskList: React.FC<TaskListProps> = ({ weekStartDate, refreshTrigge
   const [error, setError] = useState<string | null>(null)
 
   const loadTasks = useCallback(async () => {
-    if (!user) return
+    // In dev bypass mode, use mock user ID
+    const userId = user?.id || 'dev-user-12345'
+    
+    if (!userId) {
+      console.log('🔧 No user ID available, skipping task load')
+      setIsLoading(false)
+      return
+    }
+
+    console.log('🔧 Loading tasks for user:', userId, user ? '(real user)' : '(dev bypass)')
 
     setIsLoading(true)
     setError(null)
 
     try {
-      const { data, error: fetchError } = await taskService.getTasksForWeek(user.id, weekStartDate)
+      const { data, error: fetchError } = await taskService.getTasksForWeek(userId, weekStartDate)
       
       if (fetchError) throw fetchError
       
