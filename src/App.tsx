@@ -4,6 +4,7 @@ import { AuthProvider, useAuth } from './contexts/AuthContext'
 import { AuthForm } from './components/Auth/AuthForm'
 import { Dashboard } from './components/Dashboard/Dashboard'
 import { EnvCheck } from './components/Debug/EnvCheck'
+import { TestUser } from './components/Debug/TestUser'
 import './App.css'
 
 // Force deployment timestamp: 2025-01-31 20:05
@@ -56,6 +57,7 @@ const AppContent: React.FC = () => {
   return (
     <>
       <AuthForm mode={authMode} onToggleMode={toggleAuthMode} />
+      <TestUser />
       <EnvCheck />
     </>
   )

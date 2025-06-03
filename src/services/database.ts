@@ -3,7 +3,7 @@ import type { User, Task, TaskCompletion } from '../lib/supabase'
 
 // Auth functions
 export const authService = {
-  // Sign up new user
+  // Sign up new user (with email verification disabled for development)
   async signUp(email: string, password: string, username: string) {
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -12,7 +12,9 @@ export const authService = {
         data: {
           username,
         },
-      },
+        // Disable email confirmation for development testing
+        emailRedirectTo: undefined,
+      }
     })
     return { data, error }
   },
