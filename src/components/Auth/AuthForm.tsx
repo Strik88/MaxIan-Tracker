@@ -89,6 +89,38 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
     setSuccessMessage('')
   }
 
+  const createAndLoginTestAccount = async () => {
+    setError('')
+    setSuccessMessage('')
+
+    try {
+      console.log('🧪 Creating test account first...')
+      
+      // First try to create the account
+      const { error: signUpError } = await signUp('test@maxian.dev', 'testpass123', 'MaxIanTest')
+      
+      if (signUpError && !signUpError.message.includes('already been registered')) {
+        setError(`Failed to create test account: ${signUpError.message}`)
+        return
+      }
+
+      // Wait a moment for account creation
+      await new Promise(resolve => setTimeout(resolve, 1000))
+
+      // Then try to login
+      console.log('🧪 Now logging in with test account...')
+      const { error: signInError } = await signIn('test@maxian.dev', 'testpass123')
+      
+      if (signInError) {
+        setError(`Login failed: ${signInError.message}`)
+      } else {
+        console.log('🧪 Test account login successful!')
+      }
+    } catch (err: any) {
+      setError(`Error: ${err.message}`)
+    }
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -102,15 +134,25 @@ export const AuthForm: React.FC<AuthFormProps> = ({ mode, onToggleMode }) => {
               <div><strong>Password:</strong></div>
               <div className="font-mono text-xs">testpass123</div>
             </div>
-            <button
-              type="button"
-              onClick={fillTestCredentials}
-              className="mt-3 w-full bg-blue-600 text-white py-2 px-3 rounded text-xs hover:bg-blue-700 transition-colors"
-            >
-              🚀 Auto-fill Test Credentials
-            </button>
+            <div className="grid grid-cols-2 gap-2 mt-3">
+              <button
+                type="button"
+                onClick={fillTestCredentials}
+                className="bg-blue-600 text-white py-2 px-3 rounded text-xs hover:bg-blue-700 transition-colors"
+              >
+                📝 Auto-fill Form
+              </button>
+              <button
+                type="button"
+                onClick={createAndLoginTestAccount}
+                disabled={loading}
+                className="bg-green-600 text-white py-2 px-3 rounded text-xs hover:bg-green-700 transition-colors disabled:opacity-50"
+              >
+                {loading ? '⏳ Working...' : '🚀 Create & Login'}
+              </button>
+            </div>
             <div className="mt-2 text-xs text-gray-600">
-              💡 Click above to auto-fill the form, then click Sign In
+              💡 Use "Create & Login" for instant access, or "Auto-fill" then manual login
             </div>
           </div>
         </div>
