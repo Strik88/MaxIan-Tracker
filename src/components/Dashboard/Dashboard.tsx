@@ -3,6 +3,7 @@ import { useAuth } from '../../contexts/AuthContext'
 import { TaskForm } from '../Tasks/TaskForm'
 import { TaskList } from '../Tasks/TaskList'
 import { WeekSelector } from '../Tasks/WeekSelector'
+import { runDatabaseTests, checkEnvironmentVariables } from '../../utils/testDatabase'
 
 export const Dashboard: React.FC = () => {
   const { user, signOut } = useAuth()
@@ -21,6 +22,8 @@ export const Dashboard: React.FC = () => {
 
   const [currentWeekStart, setCurrentWeekStart] = useState(getCurrentWeekStart())
   const [refreshTrigger, setRefreshTrigger] = useState(0)
+  const [isRunningTests, setIsRunningTests] = useState(false)
+  const [testResults, setTestResults] = useState<any>(null)
 
   const handleTaskCreated = () => {
     setRefreshTrigger(prev => prev + 1)
@@ -32,6 +35,45 @@ export const Dashboard: React.FC = () => {
 
   const handleSignOut = async () => {
     await signOut()
+  }
+
+  const runTests = async () => {
+    setIsRunningTests(true)
+    setTestResults(null)
+    
+    console.log('🧪 Starting comprehensive database tests from Dashboard...')
+    
+    try {
+      // First check environment variables
+      const envCheck = checkEnvironmentVariables()
+      
+      if (!envCheck) {
+        setTestResults({
+          connection: false,
+          schema: false,
+          auth: false,
+          taskCreation: false,
+          summary: '❌ Environment variables not set properly'
+        })
+        return
+      }
+
+      // Run full database tests
+      const results = await runDatabaseTests()
+      setTestResults(results)
+      
+    } catch (error: any) {
+      console.error('Test error:', error)
+      setTestResults({
+        connection: false,
+        schema: false,
+        auth: false,
+        taskCreation: false,
+        summary: `❌ Test failed: ${error.message}`
+      })
+    } finally {
+      setIsRunningTests(false)
+    }
   }
 
   // Dev bypass mode check
@@ -54,18 +96,53 @@ export const Dashboard: React.FC = () => {
                 )}
               </p>
             </div>
-            <button
-              onClick={handleSignOut}
-              className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
-            >
-              {isDevBypass ? 'Exit Dev Mode' : 'Sign Out'}
-            </button>
+            <div className="flex gap-3">
+              <button
+                onClick={runTests}
+                disabled={isRunningTests}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+              >
+                {isRunningTests ? '🧪 Testing...' : '🧪 Test Database'}
+              </button>
+              <button
+                onClick={handleSignOut}
+                className="bg-gray-600 text-white px-4 py-2 rounded-md hover:bg-gray-700 transition-colors"
+              >
+                {isDevBypass ? 'Exit Dev Mode' : 'Sign Out'}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Test Results */}
+        {testResults && (
+          <div className={`rounded-lg p-4 mb-6 ${testResults.summary.includes('ALL TESTS PASSED') ? 'bg-green-50 border border-green-200' : 'bg-red-50 border border-red-200'}`}>
+            <h3 className={`font-semibold ${testResults.summary.includes('ALL TESTS PASSED') ? 'text-green-900' : 'text-red-900'}`}>
+              🧪 Database Test Results
+            </h3>
+            <div className="mt-2 space-y-1 text-sm">
+              <div className={testResults.connection ? 'text-green-700' : 'text-red-700'}>
+                Connection: {testResults.connection ? '✅ Pass' : '❌ Fail'}
+              </div>
+              <div className={testResults.schema ? 'text-green-700' : 'text-red-700'}>
+                Schema: {testResults.schema ? '✅ Pass' : '❌ Fail'}
+              </div>
+              <div className={testResults.auth ? 'text-green-700' : 'text-red-700'}>
+                Auth: {testResults.auth ? '✅ Pass' : '❌ Fail'}
+              </div>
+              <div className={testResults.taskCreation ? 'text-green-700' : 'text-red-700'}>
+                Task Creation: {testResults.taskCreation ? '✅ Pass' : '❌ Fail'}
+              </div>
+            </div>
+            <p className={`mt-2 font-medium ${testResults.summary.includes('ALL TESTS PASSED') ? 'text-green-800' : 'text-red-800'}`}>
+              {testResults.summary}
+            </p>
+          </div>
+        )}
+
         {isDevBypass && (
           <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
             <h3 className="text-red-900 font-semibold">⚠️ Development Bypass Mode</h3>
