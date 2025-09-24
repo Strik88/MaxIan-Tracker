@@ -22,7 +22,7 @@ export const runDatabaseTests = async () => {
     // Test 2: Check if tables exist
     console.log('🗃️ Testing database schema...')
     try {
-      const { data: tablesData, error: tablesError } = await supabase
+      const { error: tablesError } = await supabase
         .from('users')
         .select('id')
         .limit(1)

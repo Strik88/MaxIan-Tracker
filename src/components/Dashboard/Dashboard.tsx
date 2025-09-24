@@ -1,8 +1,7 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { HabitForm } from '../Habits/HabitForm'
-import { HabitList } from '../Habits/HabitList'
-import { WeeklyCalendar } from '../Calendar/WeeklyCalendar'
+import { HabitForm, HabitList } from '../Habits'
+import { WeeklyCalendar } from '../Calendar'
 import { runDatabaseTests, checkEnvironmentVariables } from '../../utils/testDatabase'
 
 export const Dashboard: React.FC = () => {
