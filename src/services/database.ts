@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import type { User, Task, TaskCompletion } from '../lib/supabase'
+import type { User, Task, TaskCompletion, Habit, HabitLog } from '../lib/supabase'
 
 // Auth functions
 export const authService = {
@@ -70,6 +70,113 @@ export const userService = {
       .single()
     
     return { data, error }
+  },
+}
+
+// Habit functions (updated for new schema)
+export const habitService = {
+  // Get all habits for user
+  async getHabits(userId: string): Promise<{ data: Habit[] | null; error: any }> {
+    const { data, error } = await supabase
+      .from('habits')
+      .select('*')
+      .eq('user_id', userId)
+      .order('sort_order', { ascending: true })
+      .order('created_at', { ascending: true })
+    
+    return { data, error }
+  },
+
+  // Create new habit
+  async createHabit(habit: Omit<Habit, 'id' | 'created_at'>) {
+    const { data, error } = await supabase
+      .from('habits')
+      .insert([habit])
+      .select()
+      .single()
+    
+    return { data, error }
+  },
+
+  // Update habit
+  async updateHabit(habitId: string, updates: Partial<Habit>) {
+    const { data, error } = await supabase
+      .from('habits')
+      .update(updates)
+      .eq('id', habitId)
+      .select()
+      .single()
+    
+    return { data, error }
+  },
+
+  // Delete habit
+  async deleteHabit(habitId: string) {
+    const { error } = await supabase
+      .from('habits')
+      .delete()
+      .eq('id', habitId)
+    
+    return { error }
+  },
+}
+
+// Habit log functions (daily completion tracking)
+export const habitLogService = {
+  // Get habit logs for a date range
+  async getHabitLogs(userId: string, startDate: string, endDate: string): Promise<{ data: HabitLog[] | null; error: any }> {
+    const { data, error } = await supabase
+      .from('habit_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .gte('date', startDate)
+      .lte('date', endDate)
+      .order('date', { ascending: true })
+    
+    return { data, error }
+  },
+
+  // Toggle habit completion for a specific date
+  async toggleHabitLog(userId: string, habitId: string, date: string, status: 'checked' | 'missed' | 'not_checked') {
+    // First, try to update existing log
+    const { data: existingLog, error: fetchError } = await supabase
+      .from('habit_logs')
+      .select('*')
+      .eq('user_id', userId)
+      .eq('habit_id', habitId)
+      .eq('date', date)
+      .single()
+
+    if (fetchError && fetchError.code !== 'PGRST116') {
+      // Error other than "not found"
+      return { data: null, error: fetchError }
+    }
+
+    if (existingLog) {
+      // Update existing log
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .update({ status })
+        .eq('id', existingLog.id)
+        .select()
+        .single()
+      
+      return { data, error }
+    } else {
+      // Create new log
+      const { data, error } = await supabase
+        .from('habit_logs')
+        .insert([{
+          user_id: userId,
+          habit_id: habitId,
+          date,
+          status,
+        }])
+        .select()
+        .single()
+      
+      return { data, error }
+    }
   },
 }
 

@@ -35,6 +35,26 @@ export interface TaskCompletion {
   updated_at: string
 }
 
+// New types for updated schema
+export interface Habit {
+  id: string
+  user_id: string
+  name: string
+  kind: 'hardline' | 'mainline'
+  icon?: string
+  sort_order: number
+  created_at: string
+}
+
+export interface HabitLog {
+  id: string
+  user_id: string
+  habit_id: string
+  date: string // ISO date string
+  status: 'checked' | 'missed' | 'not_checked'
+  created_at: string
+}
+
 // Helper function to get current week's Monday
 export const getCurrentWeekMonday = (): string => {
   const today = new Date()

@@ -1,8 +1,8 @@
 import React, { useState } from 'react'
 import { useAuth } from '../../contexts/AuthContext'
-import { TaskForm } from '../Tasks/TaskForm'
-import { TaskList } from '../Tasks/TaskList'
-import { WeekSelector } from '../Tasks/WeekSelector'
+import { HabitForm } from '../Habits/HabitForm'
+import { HabitList } from '../Habits/HabitList'
+import { WeeklyCalendar } from '../Calendar/WeeklyCalendar'
 import { runDatabaseTests, checkEnvironmentVariables } from '../../utils/testDatabase'
 
 export const Dashboard: React.FC = () => {
@@ -25,7 +25,7 @@ export const Dashboard: React.FC = () => {
   const [isRunningTests, setIsRunningTests] = useState(false)
   const [testResults, setTestResults] = useState<any>(null)
 
-  const handleTaskCreated = () => {
+  const handleHabitCreated = () => {
     setRefreshTrigger(prev => prev + 1)
   }
 
@@ -153,21 +153,19 @@ export const Dashboard: React.FC = () => {
         )}
         
         <div className="space-y-6">
-          {/* Week Navigation */}
-          <WeekSelector 
+          {/* Weekly Calendar View */}
+          <WeeklyCalendar 
             currentWeekStart={currentWeekStart}
             onWeekChange={handleWeekChange}
+            refreshTrigger={refreshTrigger}
           />
 
-          {/* Task Form */}
-          <TaskForm 
-            weekStartDate={currentWeekStart}
-            onTaskCreated={handleTaskCreated}
+          {/* Habit Management */}
+          <HabitForm 
+            onHabitCreated={handleHabitCreated}
           />
 
-          {/* Task List */}
-          <TaskList 
-            weekStartDate={currentWeekStart}
+          <HabitList 
             refreshTrigger={refreshTrigger}
           />
         </div>
