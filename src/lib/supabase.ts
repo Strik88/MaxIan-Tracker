@@ -1,17 +1,22 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.REACT_APP_SUPABASE_URL
-const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY
+// Environment variables with development fallbacks
+const supabaseUrl = process.env.REACT_APP_SUPABASE_URL || ''
+const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY || ''
 
-if (!supabaseUrl) {
+// Only throw error if we're not in development bypass mode
+if (!supabaseUrl && process.env.NODE_ENV === 'production') {
   throw new Error('Missing REACT_APP_SUPABASE_URL environment variable. Please check your .env.local file.')
 }
 
-if (!supabaseAnonKey) {
+if (!supabaseAnonKey && process.env.NODE_ENV === 'production') {
   throw new Error('Missing REACT_APP_SUPABASE_ANON_KEY environment variable. Please check your .env.local file.')
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+// Create client with fallback for development
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : createClient('https://placeholder.supabase.co', 'placeholder-key')
 
 // Database types for TypeScript
 export interface User {
